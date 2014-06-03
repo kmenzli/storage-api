@@ -5,7 +5,7 @@
         xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
     <component>
-        <type>org.exoplatform.addons.statistics.api.rest.StatisticsRestService</type>
+        <type>org.exoplatform.addons.storage.connector.rest.StatisticsRestService</type>
     </component>
 
 </configuration>
