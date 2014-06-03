@@ -4,6 +4,8 @@
         xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
         xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
 
-    <import>jar:/conf/portal/services-configuration.xml</import>
+    <component>
+        <type>org.exoplatform.addons.statistics.api.rest.StatisticsRestService</type>
+    </component>
 
 </configuration>
