@@ -14,7 +14,7 @@
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Storage API</name>
-    <description>Persistence API Capabilities</description>
+    <description>Storage API Capabilities</description>
     <developers>
         <developer>
             <id>khemais.menzli</id>
@@ -27,7 +27,6 @@
     </developers>
     <modules>
         <module>exo-storage-api-mongodb</module>
-        <module>exo-storage-api-hibernate</module>
         <module>exo-storage-api-jdbc</module>
         <module>exo-storage-api-jcr</module>
         <module>exo-storage-api-elasticsearch</module>
@@ -42,7 +41,8 @@
     <properties>
         <!-- 3rd party libraries versions -->
         <commons-lang3.version>3.1</commons-lang3.version>
-        <exoplatform.version>4.0.0</exoplatform.version>
+        <exoplatform.version>4.0.6</exoplatform.version>
+        <org.exoplatform.portal.version>3.5.10.Final</org.exoplatform.portal.version>
         <javax.enterprise.cdi.version>1.0-SP4</javax.enterprise.cdi.version>
         <juzu.version>0.6.0</juzu.version>
         <!-- The apache tomcat version to bundle -->
@@ -50,37 +50,23 @@
         <!-- The MongoDB API -->
         <de.flapdoodle.embed.mongo>1.27</de.flapdoodle.embed.mongo>
         <mongodb-java-driver.version>2.11.1</mongodb-java-driver.version>
-        <!-- JUnit framework perfs -->
-        <org.databene.contiperf.version>2.2.0</org.databene.contiperf.version>
-        <org.easytesting.fest-assert-core.version>2.0M2</org.easytesting.fest-assert-core.version>
     </properties>
     <dependencyManagement>
         <dependencies>
-            <!-- JUnit framework perfs -->
-            <dependency>
-                <groupId>org.databene</groupId>
-                <artifactId>contiperf</artifactId>
-                <version>${org.databene.contiperf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.easytesting</groupId>
-                <artifactId>fest-assert-core</artifactId>
-                <version>${org.easytesting.fest-assert-core.version}</version>
-            </dependency>
             <!-- Inner Persistence API -->
             <dependency>
-                <groupId>org.exoplatform.addons.persistence</groupId>
-                <artifactId>exo-persistence-api-mongodb</artifactId>
+                <groupId>org.exoplatform.addons.storage</groupId>
+                <artifactId>exo-storage-api-mongodb</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.exoplatform.addons.persistence</groupId>
-                <artifactId>exo-persistence-api-jcr</artifactId>
+                <groupId>org.exoplatform.addons.storage</groupId>
+                <artifactId>exo-storage-api-jcr</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.exoplatform.addons.persistence</groupId>
-                <artifactId>exo-persistence-api-core</artifactId>
+                <groupId>org.exoplatform.addons.storage</groupId>
+                <artifactId>exo-storage-api-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- FIN -->
@@ -116,36 +102,6 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.exoplatform.addons.statistics</groupId>
-                <artifactId>exo-addons-statistics-extension-webapp</artifactId>
-                <version>${project.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.exoplatform.addons.statistics</groupId>
-                <artifactId>exo-addons-statistics-portlets-webapp</artifactId>
-                <version>${project.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.exoplatform.addons.statistics</groupId>
-                <artifactId>exo-addons-statistics-extension-config</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.exoplatform.addons.statistics</groupId>
-                <artifactId>exo-addons-statistics-api</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>org.exoplatform.addons.statistics</groupId>
-                <artifactId>exo-addons-statistics-extension-pkg</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-            </dependency>
             <!-- Import versions from platform project -->
             <dependency>
                 <groupId>org.exoplatform.platform</groupId>
@@ -153,42 +109,6 @@
                 <version>${exoplatform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-bom-core</artifactId>
-                <version>${juzu.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-core</artifactId>
-                <version>${juzu.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-core</artifactId>
-                <version>${juzu.version}</version>
-                <classifier>sources</classifier>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-plugins-less</artifactId>
-                <version>${juzu.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-plugins-servlet</artifactId>
-                <version>${juzu.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-plugins-portlet</artifactId>
-                <version>${juzu.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.juzu</groupId>
-                <artifactId>juzu-plugins-upload</artifactId>
-                <version>${juzu.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
