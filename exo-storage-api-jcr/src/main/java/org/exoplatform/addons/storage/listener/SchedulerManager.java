@@ -16,8 +16,15 @@ public class SchedulerManager implements ServletContextListener {
 
   @Override
   public void contextInitialized(ServletContextEvent servletContextEvent) {
-    log.info("INITIALIZING SCHEDULER");
-    schedulerService = new SchedulerService();
+
+      log.info("INITIALIZING SCHEDULER");
+
+      //--- Added with storage-api to ensure that SchedulerService is executed once
+      if ( schedulerService == null) {
+
+          schedulerService = new SchedulerService();
+
+      }
   }
 
   @Override

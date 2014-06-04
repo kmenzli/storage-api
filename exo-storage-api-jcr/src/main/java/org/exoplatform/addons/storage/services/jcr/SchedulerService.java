@@ -45,32 +45,40 @@ public class SchedulerService
     startScheduler();
   }
 
-  private void startScheduler()
-  {
-    SchedulerFactory sf = new StdSchedulerFactory();
-    try {
+  private void startScheduler() {
 
-      sched = sf.getScheduler();
-      JobDetail notificationCleanupJob = null ;
+      SchedulerFactory sf = new StdSchedulerFactory();
 
-      if (PropertyManager.PROPERTY_SERVICE_IMPL_JCR.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION)))
-      {
-          notificationCleanupJob = newJob(org.exoplatform.addons.storage.services.jcr.NotificationCleanupJob.class)
-                  .withIdentity("notificationCleanupJobJCR", "chatServer")
-                  .build();
+      try {
 
-      }
+          sched = sf.getScheduler();
 
-      CronTrigger notificationTrigger = newTrigger()
-              .withIdentity("notificationTrigger", "chatServer")
-              .withSchedule(cronSchedule(PropertyManager.getProperty(PropertyManager.PROPERTY_CRON_NOTIF_CLEANUP)))
-              .build();
+          //--- Added with storage-api to ensure that SchedulerService is executed once
+          if (sched == null) {
 
-      sched.scheduleJob(notificationCleanupJob, notificationTrigger);
+              JobDetail notificationCleanupJob = null ;
 
-      sched.start();
+              if (PropertyManager.PROPERTY_SERVICE_IMPL_JCR.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION))) {
 
-      log.info("Scheduler Started");
+                  notificationCleanupJob = newJob(org.exoplatform.addons.storage.services.jcr.NotificationCleanupJob.class)
+                          .withIdentity("notificationCleanupJobJCR", "chatServer")
+                          .build();
+
+              }
+
+              CronTrigger notificationTrigger = newTrigger()
+                      .withIdentity("notificationTrigger", "chatServer")
+                      .withSchedule(cronSchedule(PropertyManager.getProperty(PropertyManager.PROPERTY_CRON_NOTIF_CLEANUP)))
+                      .build();
+
+              sched.scheduleJob(notificationCleanupJob, notificationTrigger);
+
+              sched.start();
+
+              log.info("Scheduler Started");
+
+          }
+
 
     } catch (SchedulerException e) {
       e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.

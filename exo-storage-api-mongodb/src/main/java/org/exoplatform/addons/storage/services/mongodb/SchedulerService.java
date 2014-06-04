@@ -46,45 +46,50 @@ public class SchedulerService
     startScheduler();
   }
 
-  private void startScheduler()
-  {
-    SchedulerFactory sf = new StdSchedulerFactory();
-    try {
+  private void startScheduler() {
 
-      sched = sf.getScheduler();
-      JobDetail notificationCleanupJob = null;
+      SchedulerFactory sf = new StdSchedulerFactory();
+      try {
 
-      if (PropertyManager.PROPERTY_SERVICE_IMPL_MONGO.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION)))
-      {
-        notificationCleanupJob = newJob(org.exoplatform.addons.storage.services.mongodb.NotificationCleanupJob.class)
-                .withIdentity("notificationCleanupJobMongo", "chatServer")
-                .build();
+          sched = sf.getScheduler();
+
+          //--- Added with storage-api to ensure that SchedulerService is executed once
+          if (sched == null) {
+
+              JobDetail notificationCleanupJob = null;
+
+              if (PropertyManager.PROPERTY_SERVICE_IMPL_MONGO.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION))) {
+                  notificationCleanupJob = newJob(org.exoplatform.addons.storage.services.mongodb.NotificationCleanupJob.class)
+                          .withIdentity("notificationCleanupJobMongo", "chatServer")
+                          .build();
+              }
+
+              CronTrigger notificationTrigger = newTrigger().withIdentity("notificationTrigger", "chatServer")
+                      .withSchedule(cronSchedule(PropertyManager.getProperty(PropertyManager.PROPERTY_CRON_NOTIF_CLEANUP)))
+                      .build();
+
+              sched.scheduleJob(notificationCleanupJob, notificationTrigger);
+
+              sched.start();
+
+              log.info("Scheduler Started");
+
+          }
+
+          if (PropertyManager.PROPERTY_SERVICE_IMPL_MONGO.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION))) {
+
+              try {
+
+                  ConnectionManager.getInstance().ensureIndexes();
+                  log.info("MongoDB Indexes Up to Date");
+              } catch (Exception e) {
+                  log.severe("MongoDB Indexes couldn't be created during startup. Chat Extension may be unstable!");
+
+              }
+          }
+      } catch (SchedulerException e) {
+          e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
       }
-
-      CronTrigger notificationTrigger = newTrigger()
-              .withIdentity("notificationTrigger", "chatServer")
-              .withSchedule(cronSchedule(PropertyManager.getProperty(PropertyManager.PROPERTY_CRON_NOTIF_CLEANUP)))
-              .build();
-
-      sched.scheduleJob(notificationCleanupJob, notificationTrigger);
-
-      sched.start();
-
-      log.info("Scheduler Started");
-
-      if (PropertyManager.PROPERTY_SERVICE_IMPL_MONGO.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION)))
-      {
-        try {
-          ConnectionManager.getInstance().ensureIndexes();
-          log.info("MongoDB Indexes Up to Date");
-        } catch (Exception e) {
-          log.severe("MongoDB Indexes couldn't be created during startup. Chat Extension may be unstable!");
-        }
-      }
-
-    } catch (SchedulerException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-    }
 
   }
 
