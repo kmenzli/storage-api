@@ -19,6 +19,7 @@
 
 package org.exoplatform.addons.storage.services.jcr;
 
+import org.exoplatform.addons.storage.api.IScheduler;
 import org.exoplatform.addons.storage.utils.PropertyManager;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -31,62 +32,60 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-@Named("schedulerService")
+@Named("jcrSchedulerService")
 @ApplicationScoped
-public class SchedulerService
-{
-  Logger log = Logger.getLogger("SchedulerService");
+public class SchedulerService implements IScheduler {
 
-  private static Scheduler sched;
+    Logger log = Logger.getLogger("SchedulerService");
 
-  public SchedulerService()
-  {
-    log.info("Start Scheduler");
-    startScheduler();
-  }
+    private static Scheduler sched;
 
-  private void startScheduler() {
-
-      SchedulerFactory sf = new StdSchedulerFactory();
-
-      try {
-
-          sched = sf.getScheduler();
-
-          //--- Added with storage-api to ensure that SchedulerService is executed once
-          if (sched == null) {
-
-              JobDetail notificationCleanupJob = null ;
-
-              if (PropertyManager.PROPERTY_SERVICE_IMPL_JCR.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION))) {
-
-                  notificationCleanupJob = newJob(org.exoplatform.addons.storage.services.jcr.NotificationCleanupJob.class)
-                          .withIdentity("notificationCleanupJobJCR", "chatServer")
-                          .build();
-
-              }
-
-              CronTrigger notificationTrigger = newTrigger()
-                      .withIdentity("notificationTrigger", "chatServer")
-                      .withSchedule(cronSchedule(PropertyManager.getProperty(PropertyManager.PROPERTY_CRON_NOTIF_CLEANUP)))
-                      .build();
-
-              sched.scheduleJob(notificationCleanupJob, notificationTrigger);
-
-              sched.start();
-
-              log.info("Scheduler Started");
-
-          }
-
-
-    } catch (SchedulerException e) {
-      e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+    public SchedulerService() {
+        log.info("Start Scheduler");
+        startScheduler();
     }
 
-  }
+    private void startScheduler() {
 
-  public void shutdown() throws SchedulerException {
-    sched.shutdown();
-  }
+        SchedulerFactory sf = new StdSchedulerFactory();
+
+        try {
+
+            sched = sf.getScheduler();
+
+            //--- Added with storage-api to ensure that SchedulerService is executed once
+            if (sched == null) {
+
+                JobDetail notificationCleanupJob = null ;
+
+                if (PropertyManager.PROPERTY_SERVICE_IMPL_JCR.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION))) {
+
+                    notificationCleanupJob = newJob(org.exoplatform.addons.storage.services.jcr.NotificationCleanupJob.class)
+                            .withIdentity("notificationCleanupJobJCR", "chatServer")
+                            .build();
+                }
+
+                CronTrigger notificationTrigger = newTrigger()
+                        .withIdentity("notificationTrigger", "chatServer")
+                        .withSchedule(cronSchedule(PropertyManager.getProperty(PropertyManager.PROPERTY_CRON_NOTIF_CLEANUP)))
+                        .build();
+
+                sched.scheduleJob(notificationCleanupJob, notificationTrigger);
+
+                sched.start();
+
+                log.info("Scheduler Started");
+            }
+        } catch (SchedulerException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+
+        }
+    }
+
+    @Override
+    public void shutdown() throws SchedulerException {
+
+        sched.shutdown();
+
+    }
 }

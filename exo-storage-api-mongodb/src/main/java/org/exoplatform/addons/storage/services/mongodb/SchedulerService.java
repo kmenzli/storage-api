@@ -19,6 +19,7 @@
 
 package org.exoplatform.addons.storage.services.mongodb;
 
+import org.exoplatform.addons.storage.api.IScheduler;
 import org.exoplatform.addons.storage.listener.ConnectionManager;
 import org.exoplatform.addons.storage.utils.PropertyManager;
 import org.quartz.*;
@@ -32,10 +33,9 @@ import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-@Named("schedulerService")
+@Named("mongoSchedulerService")
 @ApplicationScoped
-public class SchedulerService
-{
+public class SchedulerService implements IScheduler {
   Logger log = Logger.getLogger("SchedulerService");
 
   private static Scheduler sched;
@@ -93,7 +93,9 @@ public class SchedulerService
 
   }
 
-  public void shutdown() throws SchedulerException {
-    sched.shutdown();
-  }
+    public void shutdown() throws SchedulerException {
+
+        sched.shutdown();
+
+    }
 }
