@@ -38,20 +38,24 @@ public class GuiceManager implements ServletContextListener
   }
 
   public static void forceNew() {
-      try {
-            if (injector_==null)
-            {
-              if (PropertyManager.PROPERTY_SERVICE_IMPL_MONGO.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION)))
-              {
-                injector_ = Guice.createInjector((AbstractModule)Class.forName("org.exoplatform.addons.storage.services.mongodb.MongoModule").newInstance());
-              }
-              else
-              {
-                injector_ = Guice.createInjector((AbstractModule)Class.forName("org.exoplatform.addons.storage.services.mongodb.JCRModule").newInstance());
-              }
 
-            }
+      //TODO : Provide a pattern to simplify the intoduction of new implementation such as couchbase, elastic-search, etc..
+      try {
+          if (injector_==null) {
+
+              //TODO : The binding is done during the compilation time itself, IMO it should be done during the runtime !!!
+
+              //TODO : need to implement a service to retreive which Module should be used. 1- Use a dynamic provider or a properties file, etc ...
+
+              // Use the activated implementation
+              Class<?> guiceModule = Class.forName(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVICES_IMPLEMENTATION));
+
+              // Create Guice Injector
+              injector_ = Guice.createInjector((AbstractModule)guiceModule.newInstance());
+          }
       } catch (Exception E) {
+
+          log.severe("Storage Engine faced problems during Guice Modules initialization");
 
       }
   }

@@ -32,111 +32,103 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
-public class MongoBootstrap
-{
-  private static MongodExecutable mongodExe;
-  private static MongodProcess mongod;
-  private Mongo m;
-  private DB db;
-  private static Logger log = Logger.getLogger(MongoBootstrap.class.getName());
+public class MongoBootstrap {
 
-  private Mongo mongo()
-  {
-    if (m==null)
-    {
-      try
-      {
-        if (PropertyManager.PROPERTY_SERVER_TYPE_EMBED.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_TYPE)))
-        {
-          log.warning("WE WILL NOW USE MONGODB IN EMBED MODE...");
-          log.warning("BE AWARE...");
-          log.warning("EMBED MODE SHOULD NEVER BE USED IN PRODUCTION!");
-          setupEmbedMongo();
+    private static MongodExecutable mongodExe;
+    private static MongodProcess mongod;
+    private Mongo m;
+    private DB db;
+    private static Logger log = Logger.getLogger(MongoBootstrap.class.getName());
+
+    private Mongo mongo() {
+        if (m==null) {
+            try {
+                if (PropertyManager.PROPERTY_SERVER_TYPE_EMBED.equals(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_TYPE))) {
+                    log.warning("WE WILL NOW USE MONGODB IN EMBED MODE...");
+                    log.warning("BE AWARE...");
+                    log.warning("EMBED MODE SHOULD NEVER BE USED IN PRODUCTION!");
+                    // TODO : Embed mode should be separated, to avoid deploying flopdoodle artifacts in prod env
+                    setupEmbedMongo();
+
+                }
+                MongoOptions options = new MongoOptions();
+                options.connectionsPerHost = 200;
+                options.connectTimeout = 60000;
+                options.threadsAllowedToBlockForConnectionMultiplier = 10;
+                options.autoConnectRetry = true;
+                String host = PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_HOST);
+                int port = Integer.parseInt(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_PORT));
+                m = new Mongo(new ServerAddress(host, port), options);
+                m.setWriteConcern(WriteConcern.SAFE);
+            } catch (UnknownHostException e) {
+
+            } catch (IOException e) {
+
+            }
         }
+        return m;
+    }
 
-        MongoOptions options = new MongoOptions();
-        options.connectionsPerHost = 200;
-        options.connectTimeout = 60000;
-        options.threadsAllowedToBlockForConnectionMultiplier = 10;
-        options.autoConnectRetry = true;
-        String host = PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_HOST);
+    public void close() {
+        try {
+            if (mongod != null) {
+                mongod.stop();
+                mongodExe.stop();
+            }
+            if (m!=null) {
+                m.close();
+            }
+        } catch (NullPointerException e) {
+
+        }
+    }
+
+    public void initialize() {
+        this.close();
+        this.m = null;
+        this.mongo();
+    }
+
+    public void dropDB(String dbName) {
+        log.info("---- Dropping DB " + dbName);
+        mongo().dropDatabase(dbName);
+        log.info("-------- DB " + dbName + " dropped!");
+    }
+
+    public DB getDB() {
+        return getDB(null);
+    }
+
+    public DB getDB(String dbName) {
+        if (db==null || dbName!=null) {
+            if (dbName!=null) {
+                db = mongo().getDB(dbName);
+            } else {
+                db = mongo().getDB(PropertyManager.getProperty(PropertyManager.PROPERTY_DB_NAME));
+            }
+            boolean authenticate = "true".equals(PropertyManager.getProperty(PropertyManager.PROPERTY_DB_AUTHENTICATION));
+            if (authenticate) {
+                db.authenticate(PropertyManager.getProperty(PropertyManager.PROPERTY_DB_USER), PropertyManager.getProperty(PropertyManager.PROPERTY_DB_PASSWORD).toCharArray());
+            }
+            initCollection("statistics");
+        }
+        return db;
+  }
+
+    private static Mongo setupEmbedMongo() throws IOException {
+
+        MongodStarter runtime = MongodStarter.getDefaultInstance();
         int port = Integer.parseInt(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_PORT));
-        m = new Mongo(new ServerAddress(host, port), options);
-        m.setWriteConcern(WriteConcern.SAFE);
-      }
-      catch (UnknownHostException e)
-      {
-      }
-      catch (IOException e)
-      {
-      }
+        mongodExe = runtime.prepare(new MongodConfig(Version.V2_3_0, port, Network.localhostIsIPv6()));
+        mongod = mongodExe.start();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            log.info(e.getMessage());
+        }
+        String host = PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_HOST);
+        return new Mongo(new ServerAddress(host, port));
     }
-    return m;
-  }
-
-  public void close() {
-    try {
-      if (mongod != null) {
-        mongod.stop();
-        mongodExe.stop();
-      }
-      if (m!=null)
-        m.close();
-    } catch (NullPointerException e) {}
-  }
-
-  public void initialize() {
-    this.close();
-    this.m = null;
-    this.mongo();
-  }
-
-  public void dropDB(String dbName)
-  {
-    log.info("---- Dropping DB " + dbName);
-    mongo().dropDatabase(dbName);
-    log.info("-------- DB " + dbName + " dropped!");
-
-  }
-
-  public DB getDB()
-  {
-    return getDB(null);
-  }
-
-  public DB getDB(String dbName)
-  {
-    if (db==null || dbName!=null)
-    {
-      if (dbName!=null)
-        db = mongo().getDB(dbName);
-      else
-        db = mongo().getDB(PropertyManager.getProperty(PropertyManager.PROPERTY_DB_NAME));
-      boolean authenticate = "true".equals(PropertyManager.getProperty(PropertyManager.PROPERTY_DB_AUTHENTICATION));
-      if (authenticate)
-      {
-        db.authenticate(PropertyManager.getProperty(PropertyManager.PROPERTY_DB_USER), PropertyManager.getProperty(PropertyManager.PROPERTY_DB_PASSWORD).toCharArray());
-      }
-      initCollection("statistics");
-
-    }
-    return db;
-  }
-
-  private static Mongo setupEmbedMongo() throws IOException {
-    MongodStarter runtime = MongodStarter.getDefaultInstance();
-    int port = Integer.parseInt(PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_PORT));
-    mongodExe = runtime.prepare(new MongodConfig(Version.V2_3_0, port, Network.localhostIsIPv6()));
-    mongod = mongodExe.start();
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      log.info(e.getMessage());
-    }
-    String host = PropertyManager.getProperty(PropertyManager.PROPERTY_SERVER_HOST);
-
-    return new Mongo(new ServerAddress(host, port));
-  }
 
   public void initCappedCollection(String name, int size)
   {

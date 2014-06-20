@@ -21,7 +21,6 @@ public class AbstractTestCase
   {
     PropertyManager.overrideProperty(PropertyManager.PROPERTY_SERVER_TYPE, "embed");
     PropertyManager.overrideProperty(PropertyManager.PROPERTY_SERVER_PORT, "27777");
-    PropertyManager.overrideProperty(PropertyManager.PROPERTY_TOKEN_VALIDITY, "100");
 
     ConnectionManager.forceNew();
     ConnectionManager.getInstance().getDB("unittest");

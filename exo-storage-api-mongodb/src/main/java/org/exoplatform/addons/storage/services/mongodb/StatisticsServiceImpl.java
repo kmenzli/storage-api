@@ -22,7 +22,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     private static Logger LOG = Logger.getLogger(StatisticsServiceImpl.class.getName());
 
     private DB db() {
+
         return ConnectionManager.getInstance().getDB();
+
     }
 
     @Override
