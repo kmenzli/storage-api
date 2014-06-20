@@ -27,9 +27,6 @@
     </developers>
     <modules>
         <module>exo-storage-api-mongodb</module>
-        <module>exo-storage-api-jdbc</module>
-        <module>exo-storage-api-jcr</module>
-        <module>exo-storage-api-elasticsearch</module>
         <module>exo-storage-api-core</module>
         <module>exo-storage-api-connector</module>
     </modules>
@@ -112,16 +109,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

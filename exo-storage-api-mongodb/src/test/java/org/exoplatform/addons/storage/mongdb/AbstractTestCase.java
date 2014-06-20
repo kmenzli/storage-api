@@ -14,7 +14,7 @@ public class AbstractTestCase
 {
 
 
-  static Logger log = Logger.getLogger("ChatTestCase");
+  static Logger log = Logger.getLogger("StatisticsTestCase");
 
   @BeforeClass
   public static void before() throws IOException

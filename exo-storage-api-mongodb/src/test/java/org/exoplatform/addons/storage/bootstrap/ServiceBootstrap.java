@@ -24,36 +24,11 @@ import org.exoplatform.addons.storage.services.*;
 
 public class ServiceBootstrap {
 
-    private static UserService userService;
-    private static TokenService tokenService;
-    private static ChatService chatService;
-    private static NotificationService notificationService;
     private static StatisticsService statisticsService;
 
     public static void forceNew() {
 
-        chatService = GuiceManager.getInstance().getInstance(ChatService.class);
-        userService = GuiceManager.getInstance().getInstance(UserService.class);
-        tokenService = GuiceManager.getInstance().getInstance(TokenService.class);
-        notificationService = GuiceManager.getInstance().getInstance(NotificationService.class);
         statisticsService = GuiceManager.getInstance().getInstance(StatisticsService.class);
-    }
-
-    public static UserService getUserService() {
-        return userService;
-    }
-
-    public static TokenService getTokenService() {
-        return tokenService;
-    }
-
-    public static ChatService getChatService() {
-
-        return chatService;
-    }
-
-    public static NotificationService getNotificationService() {
-        return notificationService;
     }
 
     public static StatisticsService getStatisticsService() {
