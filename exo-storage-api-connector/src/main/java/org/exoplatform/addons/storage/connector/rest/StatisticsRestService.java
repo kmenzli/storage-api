@@ -31,12 +31,19 @@ public class StatisticsRestService implements ResourceContainer {
 
     StatisticsService statisticsService = null;
 
+
     private StatisticsList statistics = null;
 
     private static String[] mediaTypes = new String[] { "json", "xml" };
 
+    private  StatisticsList mockStatistics = null;
+
     public StatisticsRestService() {
+
         this.statisticsService = GuiceManager.getInstance().getInstance(StatisticsService.class);
+
+        mockStatistics =  new StatisticsList();
+
     }
 
     @GET
@@ -54,7 +61,7 @@ public class StatisticsRestService implements ResourceContainer {
 
         }
 
-        return RestUtils.getResponse(null, uriInfo, MediaType.APPLICATION_JSON_TYPE, Response.Status.OK);
+        return RestUtils.getResponse(mockStatistics, uriInfo, MediaType.APPLICATION_JSON_TYPE, Response.Status.OK);
 
     }
 
@@ -96,13 +103,13 @@ public class StatisticsRestService implements ResourceContainer {
     @GET
     @Path("/query.{format}")
     @RolesAllowed("users")
-    public Response search(@Context UriInfo uriInfo,
+    public Response query(@Context UriInfo uriInfo,
                            @QueryParam("criteria") String criteria,
                            @DefaultValue("ALL") @QueryParam("scope") String scope,
                            @DefaultValue("10") @QueryParam("offset") String offset,
                            @DefaultValue("100") @QueryParam("limit") String limit,
-                           @DefaultValue("relevancy") @QueryParam("sort") String sort,
-                           @DefaultValue("desc") @QueryParam("order") String order,
+                           @DefaultValue("1") @QueryParam("sort") String sort,
+                           @DefaultValue("1") @QueryParam("order") String order,
                            @PathParam("format") String format) throws Exception {
 
         MediaType mediaType = RestUtils.getMediaType(format, mediaTypes);
@@ -114,9 +121,9 @@ public class StatisticsRestService implements ResourceContainer {
 
         try {
 
-            String searchScope = RestUtils.computeSearchParameters(criteria,scope);
+            //String searchScope = RestUtils.computeSearchParameters(criteria,scope);
 
-            statisticBOs = statisticsService.search(criteria, searchScope, Integer.parseInt(offset), Integer.parseInt(limit), Integer.parseInt(sort), Integer.parseInt(order), 0);
+            statisticBOs = statisticsService.query(criteria, scope, Integer.parseInt(offset), Integer.parseInt(limit), Integer.parseInt(sort), Integer.parseInt(order), 0);
 
             statistics.setStatistics(statisticBOs);
 
@@ -183,6 +190,7 @@ public class StatisticsRestService implements ResourceContainer {
         return RestUtils.getResponse(statistics, uriInfo, mediaType, Response.Status.OK);
     }
 
+
     @GET
     @Path("/export/.{format}")
     @RolesAllowed("administrators")
@@ -224,7 +232,7 @@ public class StatisticsRestService implements ResourceContainer {
          * adds space to space list
          *
          * @param statisticsBean
-         * @see org.exoplatform.addons.persistence.model.StatisticsBean
+         * @see org.exoplatform.addons.storage.model.StatisticsBean
          */
         public void addStatisticBO(StatisticsBean statisticsBean) {
             if (_statistics == null) {

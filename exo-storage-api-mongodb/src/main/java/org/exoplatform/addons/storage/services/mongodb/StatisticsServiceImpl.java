@@ -71,7 +71,7 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @throws Exception
      */
     @Override
-    public List<StatisticsBean> search(String criteria, String scope, int offset, int limit, int sort, int order, long timestamp) throws Exception {
+    public List<StatisticsBean> query(String criteria, String scope, int offset, int limit, int sort, int order, long timestamp) throws Exception {
 
         LinkedList<StatisticsBean> statistics = new LinkedList<StatisticsBean>();
 
@@ -93,28 +93,28 @@ public class StatisticsServiceImpl implements StatisticsService {
         } else {
 
             //--- search statistics by user
-            statistics.addAll(search(criteria, "user", offset, limit, sort, order, timestamp));
+            statistics.addAll(query(criteria, "user", offset, limit, sort, order, timestamp));
             LOG.finest("##### [User Search Engine] load ["+statistics.size()+"] tuples ####### ");
 
             //--- search statistics by category
-            statistics.addAll(search(criteria, "category", offset, limit, sort, order, timestamp));
+            statistics.addAll(query(criteria, "category", offset, limit, sort, order, timestamp));
             LOG.finest("##### [Category Search Engine] load ["+statistics.size()+"] tuples ####### ");
 
             //--- search statistics by categoryId
-            statistics.addAll(search(criteria, "categoryId", offset, limit, sort, order, timestamp));
+            statistics.addAll(query(criteria, "categoryId", offset, limit, sort, order, timestamp));
             LOG.finest("##### [CategoryId Search Engine] load ["+statistics.size()+"] tuples ####### ");
 
             //--- search statistics by type
-            statistics.addAll(search(criteria, "type", offset, limit, sort, order, timestamp));
+            statistics.addAll(query(criteria, "type", offset, limit, sort, order, timestamp));
             LOG.finest("##### [Type Search Engine] load ["+statistics.size()+"] tuples ####### ");
 
 
             //--- search statistics by content
-            statistics.addAll(search(criteria, "content", offset, limit, sort, order, timestamp));
+            statistics.addAll(query(criteria, "content", offset, limit, sort, order, timestamp));
             LOG.finest("##### [Content Search Engine] load ["+statistics.size()+"] tuples ####### ");
 
             //--- search statistics by link
-            statistics.addAll(search(criteria, "link", offset, limit, sort, order, timestamp));
+            statistics.addAll(query(criteria, "link", offset, limit, sort, order, timestamp));
             LOG.finest("##### [Link Search Engine] load [" + statistics.size() + "] tuples ####### ");
 
             return statistics;
@@ -150,6 +150,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         return statistics;
     }
+
 
     @Override
     public List<StatisticsBean> filter(String user, String category, String categoryId, String type, String site, String siteType, String content, boolean isPrivate, long timestamp) throws Exception {
@@ -247,6 +248,66 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
+    public int getStatisticsCountByFilter(String user, String category, String categoryId, String type, String site, String siteType, String content, boolean isPrivate, long timestamp) throws Exception {
+
+        DBCollection collection = db().getCollection(M_STATISTICS);
+
+        BasicDBObject query = new BasicDBObject("isPrivate", isPrivate);
+
+        //TODO : replace if blocs by a design pattern
+        if (content != null) {
+
+            query.put("content", new BasicDBObject("$regex", content));
+
+        }
+        if (user != null) {
+
+            query.put("user",user);
+
+        }
+
+        if (category != null) {
+
+            query.put("category",category);
+
+        }
+
+        if (categoryId != null) {
+
+            query.put("categoryId",categoryId);
+
+        }
+
+        if (type != null) {
+
+            query.put("type",type);
+
+        }
+
+        if (timestamp > 0) {
+
+            query.put("timestamp",new BasicDBObject("$gt", timestamp));
+
+        }
+
+        if ( site!= null ) {
+
+            query.put("site",site);
+
+        }
+
+        if (siteType != null) {
+
+            query.put("siteType",siteType);
+
+        }
+
+        return collection.find(query).count();
+
+
+    }
+
+    @Override
     public StatisticsBean addEntry(String user, String from, String type, String category, String categoryId, String content, String link, String site, String siteType) {
         DBCollection coll = db().getCollection(M_STATISTICS);
         BasicDBObject doc = new BasicDBObject();
@@ -327,6 +388,24 @@ public class StatisticsServiceImpl implements StatisticsService {
             cursor.close();
 
         }
+
+    }
+
+    @Override
+    public int getStatisticsCount(long timestamp) throws Exception {
+
+        DBCollection coll = db().getCollection(M_STATISTICS);
+
+        BasicDBObject query = new BasicDBObject();
+
+        if (timestamp > 0 ) {
+
+            //--- get only tuples which timestap >= {{timestamp}}
+            query.put("timestamp", new BasicDBObject("$gte", timestamp));
+
+        }
+
+        return coll.find(query).count();
 
     }
 

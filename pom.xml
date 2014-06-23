@@ -29,6 +29,7 @@
         <module>exo-storage-api-mongodb</module>
         <module>exo-storage-api-core</module>
         <module>exo-storage-api-connector</module>
+        <module>exo-storage-api-pkg</module>
     </modules>
     <scm>
         <connection>scm:git:git://github.com/kmenzli/storage-api.git</connection>
@@ -57,12 +58,12 @@
             </dependency>
             <dependency>
                 <groupId>org.exoplatform.addons.storage</groupId>
-                <artifactId>exo-storage-api-jcr</artifactId>
+                <artifactId>exo-storage-api-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.exoplatform.addons.storage</groupId>
-                <artifactId>exo-storage-api-core</artifactId>
+                <artifactId>exo-storage-api-connector</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- FIN -->
