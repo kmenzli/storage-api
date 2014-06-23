@@ -2,7 +2,7 @@ package org.exoplatform.addons.storage.services.mongodb;
 
 import com.mongodb.*;
 import org.exoplatform.addons.storage.listener.ConnectionManager;
-import org.exoplatform.addons.storage.model.StatisticsBean;
+import org.exoplatform.addons.storage.model.*;
 import org.exoplatform.addons.storage.services.StatisticsService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -59,268 +59,21 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
     }
 
-    /**
-     *
-     * @param criteria
-     * @param scope : ALL, user, category, categoryId, type, content, link
-     * @param offset
-     * @param limit
-     * @param sort
-     * @param order
-     * @return
-     * @throws Exception
-     */
     @Override
-    public List<StatisticsBean> query(String criteria, String scope, int offset, int limit, int sort, int order, long timestamp) throws Exception {
-
-        LinkedList<StatisticsBean> statistics = new LinkedList<StatisticsBean>();
+    public StatisticsBean addEntry(ActorBean actor, String verb, ObjectBean object, TargetBean target, ContextBean context) {
 
         DBCollection coll = db().getCollection(M_STATISTICS);
 
-        BasicDBObject sortQuery = new BasicDBObject("_id", sort);
-
-        //BasicDBObject orderQuery = new BasicDBObject("_id", order);
-
-        BasicDBObject query = new BasicDBObject();
-
-        DBCursor cursor = null;
-
-        //TODO when the search is for content,the like operator should be used
-        if (!scope.equalsIgnoreCase("ALL")) {
-
-            query.put(scope,criteria);
-
-        } else {
-
-            //--- search statistics by user
-            statistics.addAll(query(criteria, "user", offset, limit, sort, order, timestamp));
-            LOG.finest("##### [User Search Engine] load ["+statistics.size()+"] tuples ####### ");
-
-            //--- search statistics by category
-            statistics.addAll(query(criteria, "category", offset, limit, sort, order, timestamp));
-            LOG.finest("##### [Category Search Engine] load ["+statistics.size()+"] tuples ####### ");
-
-            //--- search statistics by categoryId
-            statistics.addAll(query(criteria, "categoryId", offset, limit, sort, order, timestamp));
-            LOG.finest("##### [CategoryId Search Engine] load ["+statistics.size()+"] tuples ####### ");
-
-            //--- search statistics by type
-            statistics.addAll(query(criteria, "type", offset, limit, sort, order, timestamp));
-            LOG.finest("##### [Type Search Engine] load ["+statistics.size()+"] tuples ####### ");
-
-
-            //--- search statistics by content
-            statistics.addAll(query(criteria, "content", offset, limit, sort, order, timestamp));
-            LOG.finest("##### [Content Search Engine] load ["+statistics.size()+"] tuples ####### ");
-
-            //--- search statistics by link
-            statistics.addAll(query(criteria, "link", offset, limit, sort, order, timestamp));
-            LOG.finest("##### [Link Search Engine] load [" + statistics.size() + "] tuples ####### ");
-
-            return statistics;
-
-
-
-        }
-
-        cursor = coll.find(query).limit(limit).sort(sortQuery);
-
-        while (cursor.hasNext()) {
-
-            DBObject doc = cursor.next();
-            StatisticsBean statisticsBean = new StatisticsBean();
-            statisticsBean.setTimestamp((Long)doc.get("timestamp"));
-            statisticsBean.setUser(doc.get("user").toString());
-            if (doc.containsField("from")) {
-                statisticsBean.setFrom(doc.get("from").toString());
-            }
-            statisticsBean.setCategory(doc.get("category").toString());
-            statisticsBean.setCategoryId(doc.get("categoryId").toString());
-            statisticsBean.setType(doc.get("type").toString());
-            statisticsBean.setContent(doc.get("content").toString());
-            statisticsBean.setLink(doc.get("link").toString());
-            statisticsBean.setSite(doc.get("site").toString());
-            statisticsBean.setSiteType(doc.get("siteType").toString());
-
-            statistics.add(statisticsBean);
-
-        }
-
-        LOG.finest("##### [" + statistics.size() + "] tuples fetched ####### ");
-
-        return statistics;
-    }
-
-
-    @Override
-    public List<StatisticsBean> filter(String user, String category, String categoryId, String type, String site, String siteType, String content, boolean isPrivate, long timestamp) throws Exception {
-
-        LinkedList<StatisticsBean> statistics = new LinkedList<StatisticsBean>();
-
-        DBCollection collection = db().getCollection(M_STATISTICS);
-
-        BasicDBObject query = new BasicDBObject("isPrivate", isPrivate);
-
-        //TODO : replace if blocs by a design pattern
-        if (content != null) {
-
-            query.put("content", new BasicDBObject("$regex", content));
-
-        }
-        if (user != null) {
-
-            query.put("user",user);
-
-        }
-
-        if (category != null) {
-
-            query.put("category",category);
-
-        }
-
-        if (categoryId != null) {
-
-            query.put("categoryId",categoryId);
-
-        }
-
-        if (type != null) {
-
-            query.put("type",type);
-
-        }
-
-        if (timestamp > 0) {
-
-            query.put("timestamp",new BasicDBObject("$gt", timestamp));
-
-        }
-
-        if ( site!= null ) {
-
-            query.put("site",site);
-
-        }
-
-        if (siteType != null) {
-
-            query.put("siteType",siteType);
-
-        }
-
-        //--- invoke the find method
-        DBCursor cursor = collection.find(query);
-
-        try {
-            while (cursor.hasNext()) {
-                DBObject doc = cursor.next();
-                StatisticsBean statisticsBean = new StatisticsBean();
-                statisticsBean.setTimestamp((Long)doc.get("timestamp"));
-                statisticsBean.setUser(doc.get("user").toString());
-                if (doc.containsField("from")) {
-                    statisticsBean.setFrom(doc.get("from").toString());
-                }
-                statisticsBean.setCategory(doc.get("category").toString());
-                statisticsBean.setCategoryId(doc.get("categoryId").toString());
-                statisticsBean.setType(doc.get("type").toString());
-                statisticsBean.setContent(doc.get("content").toString());
-                statisticsBean.setLink(doc.get("link").toString());
-                statisticsBean.setSite(doc.get("site").toString());
-                statisticsBean.setSiteType(doc.get("siteType").toString());
-
-                //--- Add the statistic tuple to the collection
-                statistics.add(statisticsBean);
-            }
-
-        } catch (Exception E) {
-
-            LOG.log (Level.SEVERE,"Connexion impossible :"+ E.getMessage(),E);
-
-        } finally {
-
-            //--- close the cursor after each invocation
-            cursor.close();
-        }
-
-        return statistics;
-
-    }
-
-    @Override
-    public int getStatisticsCountByFilter(String user, String category, String categoryId, String type, String site, String siteType, String content, boolean isPrivate, long timestamp) throws Exception {
-
-        DBCollection collection = db().getCollection(M_STATISTICS);
-
-        BasicDBObject query = new BasicDBObject("isPrivate", isPrivate);
-
-        //TODO : replace if blocs by a design pattern
-        if (content != null) {
-
-            query.put("content", new BasicDBObject("$regex", content));
-
-        }
-        if (user != null) {
-
-            query.put("user",user);
-
-        }
-
-        if (category != null) {
-
-            query.put("category",category);
-
-        }
-
-        if (categoryId != null) {
-
-            query.put("categoryId",categoryId);
-
-        }
-
-        if (type != null) {
-
-            query.put("type",type);
-
-        }
-
-        if (timestamp > 0) {
-
-            query.put("timestamp",new BasicDBObject("$gt", timestamp));
-
-        }
-
-        if ( site!= null ) {
-
-            query.put("site",site);
-
-        }
-
-        if (siteType != null) {
-
-            query.put("siteType",siteType);
-
-        }
-
-        return collection.find(query).count();
-
-
-    }
-
-    @Override
-    public StatisticsBean addEntry(String user, String from, String type, String category, String categoryId, String content, String link, String site, String siteType) {
-        DBCollection coll = db().getCollection(M_STATISTICS);
         BasicDBObject doc = new BasicDBObject();
+
         doc.put("timestamp", System.currentTimeMillis());
-        doc.put("user", user);
-        doc.put("from", from);
-        doc.put("type", type);
-        doc.put("category", category);
-        doc.put("categoryId", categoryId);
-        doc.put("site", site);
-        doc.put("siteType", siteType);
-        doc.put("content", content);
-        doc.put("link", link);
+
+        doc.put("actor", actor);
+        doc.put("verb", verb);
+        doc.put("object", object);
+        doc.put("target", target);
+        doc.put("context", context);
+
         doc.put("isPrivate", false);
 
         //--- add new line to the dababase (what's the difference with save() method)
@@ -330,69 +83,78 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public List<StatisticsBean> getStatistics(long timestamp) throws Exception {
-
-        LinkedList<StatisticsBean> statistics = new LinkedList<StatisticsBean>();
+    public StatisticsBean addEntry(StatisticsBean statisticsBean) {
 
         DBCollection coll = db().getCollection(M_STATISTICS);
 
-        DBCursor cursor = null;
+        BasicDBObject doc = new BasicDBObject();
 
-        BasicDBObject query = new BasicDBObject();
+        doc.put("timestamp", System.currentTimeMillis());
 
-        if (timestamp > 0 ) {
+        //--- Persist an Actor Bean
+        BasicDBObject actor = new BasicDBObject();
 
-            //--- get only tuples which timestap >= {{timestamp}}
-            query.put("timestamp", new BasicDBObject("$gte", timestamp));
+        actor.put("objectType",statisticsBean.getActor().getObjectType());
+        actor.put("userName",statisticsBean.getActor().getUserName());
+        doc.put("actor",actor);
+
+        /** FIN */
+
+        //--- persist the verb
+        doc.put("verb", statisticsBean.getVerb());
+
+
+        //--- Persist the Object Bean
+        BasicDBObject object = new BasicDBObject();
+
+        object.put("objectType",statisticsBean.getObject().getObjectType());
+        object.put("displayName",statisticsBean.getObject().getDisplayName());
+        object.put("content",statisticsBean.getObject().getContent());
+        object.put("spentTime", statisticsBean.getObject().getSpentTime());
+        object.put("url",statisticsBean.getObject().getUrl());
+        object.put("link",statisticsBean.getObject().getLink());
+        doc.put("object", actor);
+        /** FIN */
+
+        //--- Persist the the Target Bean
+        if (statisticsBean.getTarget() != null ) {
+
+            BasicDBObject target = new BasicDBObject();
+
+            target.put("objectType",statisticsBean.getTarget().getObjectType());
+            target.put("displayName",statisticsBean.getTarget().getDisplayName());
+            //TODO : Bean Actors not serializable, add a method to do it
+            //target.put("actorBean",statisticsBean.getActor());
+
+            doc.put("target", target);
+        }
+        /** FIN */
+
+        //--- Persist the the Context Bean
+
+        if (statisticsBean.getContext() != null) {
+
+            BasicDBObject context = new BasicDBObject();
+
+            context.put("type",statisticsBean.getContext().getType());
+            context.put("value",statisticsBean.getContext().getValue());
+
+            doc.put("context", context);
 
         }
-        try {
 
-            cursor = coll.find(query);
 
-            while (cursor.hasNext()) {
 
-                DBObject doc = cursor.next();
-                StatisticsBean statisticsBean = new StatisticsBean();
-                statisticsBean.setTimestamp((Long)doc.get("timestamp"));
-                if (doc.get("user") != null) {
-                    statisticsBean.setUser(doc.get("user").toString());
-                }
-                if (doc.get("from") != null) {
-                    statisticsBean.setFrom(doc.get("from").toString());
-                }
-                if (doc.get("category") != null) {
-                    statisticsBean.setCategory(doc.get("category").toString());
-                }
-                statisticsBean.setCategoryId(doc.get("categoryId").toString());
-                if (doc.get("type") != null) {
-                    statisticsBean.setType(doc.get("type").toString());
-                }
-                if (doc.get("content") != null) {
-                    statisticsBean.setContent(doc.get("content").toString());
-                }
-                if (doc.get("link") != null) {
-                    statisticsBean.setLink(doc.get("link").toString());
-                }
+        doc.put("isPrivate", false);
 
-                statisticsBean.setSite(doc.get("site").toString());
-                statisticsBean.setSiteType(doc.get("siteType").toString());
+        //--- add new line to the dababase (what's the difference with save() method)
+        coll.insert(doc);
 
-                //--- Add the statistic tupe to the collection
-                statistics.add(statisticsBean);
-
-            }
-            return statistics;
-        } finally {
-
-            cursor.close();
-
-        }
-
+        return null;
     }
 
     @Override
-    public int getStatisticsCount(long timestamp) throws Exception {
+    public int count (long timestamp) throws Exception {
 
         DBCollection coll = db().getCollection(M_STATISTICS);
 
@@ -409,13 +171,4 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     }
 
-    @Override
-    public void exportStatistics() throws Exception {
-        throw new UnsupportedOperationException( "Method not yet implemented" );
-    }
-
-    @Override
-    public boolean importStatistics() throws Exception {
-        throw new UnsupportedOperationException( "Method not yet implemented" );
-    }
 }

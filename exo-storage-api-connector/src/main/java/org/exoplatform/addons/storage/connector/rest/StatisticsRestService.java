@@ -68,24 +68,21 @@ public class StatisticsRestService implements ResourceContainer {
 
     @POST
     @Path("/add/")
-    //@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @RolesAllowed("users")
-    public Response addEntry(@Context UriInfo uriInfo,
-                             @FormParam("username") String username,
-                             @FormParam("from") String from,
-                             @FormParam("type") String type,
-                             @FormParam("category") String category,
-                             @FormParam("categoryId") String categoryId,
-                             @FormParam("content") String content,
-                             @FormParam("link") String link,
-                             @FormParam("site") String site,
-                             @FormParam("siteType") String siteType) throws Exception  {
+    public Response addEntry(@Context UriInfo uriInfo, List<StatisticsBean> statisticslist) throws Exception  {
 
-        StatisticsBean statisticsBean = null;
+
 
         try {
 
-            statisticsBean = statisticsService.addEntry(username,from,type,category,categoryId,content,link,site,siteType);
+            for (StatisticsBean statisticlist : statisticslist) {
+
+                statisticsService.addEntry(statisticlist);
+
+            }
+
+
 
         } catch (Exception E) {
 
@@ -95,7 +92,7 @@ public class StatisticsRestService implements ResourceContainer {
 
         }
 
-        return RestUtils.getResponse(statisticsBean, uriInfo, MediaType.APPLICATION_JSON_TYPE, Response.Status.OK);
+        return RestUtils.getResponse(null, uriInfo, MediaType.APPLICATION_JSON_TYPE, Response.Status.OK);
 
     }
 
@@ -121,18 +118,11 @@ public class StatisticsRestService implements ResourceContainer {
 
         try {
 
-            //String searchScope = RestUtils.computeSearchParameters(criteria,scope);
 
-            statisticBOs = statisticsService.query(criteria, scope, Integer.parseInt(offset), Integer.parseInt(limit), Integer.parseInt(sort), Integer.parseInt(order), 0);
+
+            //statisticBOs = statisticsService.query(criteria, scope, Integer.parseInt(offset), Integer.parseInt(limit), Integer.parseInt(sort), Integer.parseInt(order), 0);
 
             statistics.setStatistics(statisticBOs);
-
-        } catch (StatisticsException E) {
-
-            LOG.warn("The search parameters used has not been filled out correctly please check your request, scope ["+scope+"] and criteria ["+criteria+"]");
-
-            return RestUtils.getResponse(statistics, uriInfo, mediaType, Response.Status.OK);
-
 
         } catch (Exception E) {
 
@@ -168,16 +158,9 @@ public class StatisticsRestService implements ResourceContainer {
 
         try {
 
-            statisticBOs = statisticsService.filter(user, category, categoryId, type, site, siteType, content,true, Integer.parseInt(timestamp));
+            //statisticBOs = statisticsService.filter(user, category, categoryId, type, site, siteType, content,true, Integer.parseInt(timestamp));
 
             statistics.setStatistics(statisticBOs);
-
-        } catch (StatisticsException E) {
-
-            LOG.warn("The filter parameters has not been filled out correctly please check your request, user ["+user+"], category ["+category+"], categoryId["+categoryId+"], type["+type+" and timestamp["+timestamp+"]");
-
-            return RestUtils.getResponse(statistics, uriInfo, mediaType, Response.Status.OK);
-
 
         } catch (Exception E) {
 

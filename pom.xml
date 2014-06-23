@@ -42,6 +42,7 @@
         <exoplatform.version>4.0.6</exoplatform.version>
         <org.exoplatform.portal.version>3.5.10.Final</org.exoplatform.portal.version>
         <javax.enterprise.cdi.version>1.0-SP4</javax.enterprise.cdi.version>
+        <org.gson.version>1.7.1</org.gson.version>
         <!-- The apache tomcat version to bundle -->
         <org.apache.tomcat.version>7.0.42</org.apache.tomcat.version>
         <!-- The MongoDB API -->
@@ -98,6 +99,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${org.gson.version}</version>
             </dependency>
             <!-- Import versions from platform project -->
             <dependency>
