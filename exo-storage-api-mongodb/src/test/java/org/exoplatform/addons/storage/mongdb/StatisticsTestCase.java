@@ -160,27 +160,27 @@ public class StatisticsTestCase extends AbstractTestCase {
 
         addStatistics(5,"demo","presales","exoplatform", null, null,null);
 
-        statisticBOs = statisticsService.search("demo","user",10,10,1,1,0);
+        statisticBOs = statisticsService.query("demo","user",10,10,1,1,0);
 
         assertEquals(statisticBOs.size(),5);
 
-        statisticBOs = statisticsService.search("presales","category",10,10,1,1,0);
+        statisticBOs = statisticsService.query("presales","category",10,10,1,1,0);
 
         assertEquals(statisticBOs.size(),5);
 
-        statisticBOs = statisticsService.search("exoplatform","type",10,10,1,1,0);
+        statisticBOs = statisticsService.query("exoplatform","type",10,10,1,1,0);
 
         assertEquals(statisticBOs.size(),5);
 
-        statisticBOs = statisticsService.search("exoplatform","DSE",10,10,1,1,0);
+        statisticBOs = statisticsService.query("exoplatform","DSE",10,10,1,1,0);
 
         assertEquals(statisticBOs.size(),0);
 
-        statisticBOs = statisticsService.search("sd","type",10,10,1,1,0);
+        statisticBOs = statisticsService.query("sd","type",10,10,1,1,0);
 
         assertEquals(statisticBOs.size(),0);
 
-        statisticBOs = statisticsService.search("fer","ALL",10,10,1,1,0);
+        statisticBOs = statisticsService.query("fer","ALL",10,10,1,1,0);
 
         assertEquals(statisticBOs.size(),0);
 
