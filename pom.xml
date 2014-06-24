@@ -46,8 +46,8 @@
         <!-- The apache tomcat version to bundle -->
         <org.apache.tomcat.version>7.0.42</org.apache.tomcat.version>
         <!-- The MongoDB API -->
-        <de.flapdoodle.embed.mongo>1.27</de.flapdoodle.embed.mongo>
-        <mongodb-java-driver.version>2.11.1</mongodb-java-driver.version>
+        <de.flapdoodle.embed.mongo>1.45</de.flapdoodle.embed.mongo>
+        <mongodb-java-driver.version>2.12.2</mongodb-java-driver.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -88,7 +88,7 @@
             <dependency>
                 <groupId>de.flapdoodle.embed</groupId>
                 <artifactId>de.flapdoodle.embed.process</artifactId>
-                <version>1.25</version>
+                <version>1.38</version>
             </dependency>
             <dependency>
                 <groupId>javax.enterprise</groupId>
