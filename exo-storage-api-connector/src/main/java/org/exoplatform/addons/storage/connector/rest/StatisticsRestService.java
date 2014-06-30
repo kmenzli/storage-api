@@ -199,7 +199,7 @@ public class StatisticsRestService implements ResourceContainer {
     }
 
     @GET
-    @Path("/query/.{format}")
+    @Path("/import/.{format}")
     @RolesAllowed("administrators")
     public Response importStatistics() throws Exception {
         throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
