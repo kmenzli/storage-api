@@ -8,6 +8,8 @@ import org.exoplatform.addons.storage.utils.RestUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -16,8 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Writer;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import org.jdom.Document;
+import java.io.FileWriter;
 
 /**
  * Created by menzli on 02/05/14.
@@ -175,10 +181,23 @@ public class StatisticsRestService implements ResourceContainer {
 
 
     @GET
-    @Path("/export/.{format}")
+    @Path("/export.{format}")
     @RolesAllowed("administrators")
-    public Response exportStatistics() throws Exception {
-        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+    public Response export(@Context UriInfo uriInfo,
+                           List<StatisticsBean> statisticslist,
+                           @PathParam("format") String format) throws Exception {
+
+        //--- Input should be filter
+
+        //--- Perform a search using the input filter
+
+        //--- Export statistics
+        statisticsService.export(statisticslist,format);
+
+        //--- Returned result
+        return Response.ok("Statistics exported successfully")
+                .header("Content-Type", "text/html; charset=utf-8")
+                .build();
     }
 
     @GET

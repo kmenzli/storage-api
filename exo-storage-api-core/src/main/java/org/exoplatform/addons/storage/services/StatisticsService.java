@@ -1,6 +1,7 @@
 package org.exoplatform.addons.storage.services;
 
 import org.exoplatform.addons.storage.model.*;
+import org.jdom.Document;
 
 import java.util.List;
 
@@ -19,4 +20,7 @@ public interface StatisticsService {
     public StatisticsBean addEntry(ActorBean actor, String verb, ObjectBean object, TargetBean target, ContextBean context) throws Exception;
 
     public StatisticsBean addEntry(StatisticsBean statisticsBean) throws Exception;
+
+    public void export(List<StatisticsBean> statistics, String format) throws Exception;
+
 }

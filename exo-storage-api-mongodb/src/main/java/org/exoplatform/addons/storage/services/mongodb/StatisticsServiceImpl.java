@@ -4,9 +4,16 @@ import com.mongodb.*;
 import org.exoplatform.addons.storage.listener.ConnectionManager;
 import org.exoplatform.addons.storage.model.*;
 import org.exoplatform.addons.storage.services.StatisticsService;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -20,6 +27,10 @@ import java.util.logging.Level;
 public class StatisticsServiceImpl implements StatisticsService {
 
     private static Logger LOG = Logger.getLogger(StatisticsServiceImpl.class.getName());
+
+    private String exportLocation = System.getProperty("java.io.tmpdir");
+
+    private String importLocation;
 
     private DB db() {
 
@@ -170,5 +181,114 @@ public class StatisticsServiceImpl implements StatisticsService {
         return coll.find(query).count();
 
     }
+
+    @Override
+    public void export (List<StatisticsBean> statistics, String format) throws Exception {
+
+        if (format.equalsIgnoreCase("json")) {
+
+            json(statistics);
+
+        } else if (format.equalsIgnoreCase("xml")) {
+
+            xml(statistics);
+
+        } else {
+
+            throw new IllegalArgumentException();
+
+        }
+    }
+
+    /**
+     *
+     * @param statistics
+     */
+    private void xml (List<StatisticsBean> statistics) {
+        //--- build the xml structure
+        Document doc = structure(statistics);
+
+        //--- Generate the xml file
+        XMLOutputter outputter = null;
+
+        long timestamp = System.currentTimeMillis() / 1000;
+
+        try {
+
+            outputter = new XMLOutputter(Format.getPrettyFormat());
+
+            outputter.output(doc, new FileWriter(exportLocation+"/statistics-"+timestamp+".xml"));
+
+        } catch (IOException IOE) {
+
+            LOG.severe(IOE.getMessage());
+
+        }
+    }
+
+    /**
+     *
+     * @param statistics
+     */
+    private void json (List<StatisticsBean> statistics) {
+
+        FileWriter file = null;
+
+        long timestamp = System.currentTimeMillis() / 1000;
+
+        try {
+
+            file = new FileWriter(exportLocation+"/statistics-"+timestamp+".json");
+
+            file.write(StatisticsBean.statisticstoJSON(statistics));
+
+            file.flush();
+
+            file.close();
+
+        } catch (IOException IOE) {
+
+            LOG.severe(IOE.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param statistics
+     * @return
+     */
+    private Document structure(List<StatisticsBean> statistics) {
+
+        Document doc = new Document();
+
+        Element statsListElement = new Element("statistics");
+
+        Element statisticElement = null;
+
+        for (StatisticsBean statisticsBean : statistics) {
+
+            statisticElement = new Element("statistic");
+
+            statisticElement.setAttribute("verb",statisticsBean.getVerb());
+
+            Element actorElement = new Element("actor");
+
+            actorElement.addContent(new Element("objectType").addContent(statisticsBean.getActor().getObjectType()));
+
+            actorElement.addContent(new Element("userName").addContent(statisticsBean.getActor().getUserName()));
+
+            statsListElement.addContent(statisticElement);
+
+        }
+
+        doc.addContent(statsListElement);
+
+        return doc;
+
+    }
+
+
+
+
 
 }

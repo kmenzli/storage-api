@@ -91,6 +91,15 @@
             <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}</outputFileNameMapping>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>/storage-api/lib</outputDirectory>
+            <includes>
+                <include>com.google.code.gson:gson:jar</include>
+            </includes>
+            <scope>provided</scope>
+            <outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}</outputFileNameMapping>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
         <!---->
     </dependencySets>
 </assembly>
