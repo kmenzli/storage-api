@@ -32,7 +32,7 @@ public class StatisticsTestCase extends AbstractTestCase {
     StatisticsService statisticsService;
 
     List<StatisticsBean> statisticBOs = null;
-
+/**
     @Before
     public void setUp() {
 
@@ -117,8 +117,9 @@ public class StatisticsTestCase extends AbstractTestCase {
 
         assertEquals(statisticBOs.size(),15);
 
-
+**/
         /** TEST Search by Content **/
+/**
 
         //--- cleanup all statistics
         statisticsService.cleanupStatistics(0);
@@ -140,8 +141,10 @@ public class StatisticsTestCase extends AbstractTestCase {
         statisticBOs = statisticsService.filter( null,null ,null ,null ,null ,null, "pres" ,false ,currenttime1);
 
         assertEquals(statisticBOs.size(),0);
+**/
 
         /** FIN **/
+/**
     }
 
     @Test
@@ -219,5 +222,6 @@ public class StatisticsTestCase extends AbstractTestCase {
         }
 
     }
+**/
 
 }
