@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.exoplatform.addons.storage</groupId>
     <artifactId>storage-api</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Storage API</name>
     <description>Storage API Capabilities</description>
@@ -34,7 +34,7 @@
         <connection>scm:git:git://github.com/kmenzli/storage-api.git</connection>
         <developerConnection>scm:git:git@github.com:kmenzli/storage-api.git</developerConnection>
         <url>https://github.com/kmenzli/exo-persistence-api</url>
-      <tag>0.1.1</tag>
+      <tag>HEAD</tag>
   </scm>
     <properties>
         <!-- 3rd party libraries versions -->
