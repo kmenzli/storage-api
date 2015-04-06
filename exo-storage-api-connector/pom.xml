@@ -24,7 +24,7 @@
     <parent>
         <artifactId>storage-api</artifactId>
         <groupId>org.exoplatform.addons.storage</groupId>
-        <version>0.1.1-SNAPSHOT</version>
+        <version>0.1.1</version>
     </parent>
     <artifactId>exo-storage-api-connector</artifactId>
     <packaging>jar</packaging>
